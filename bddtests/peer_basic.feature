@@ -1,16 +1,14 @@
 #
-# Test Hyperledger Peers
+# Test Fabric Peers
 #
 # Tags that can be used and will affect test internals:
-#
 #  @doNotDecompose will NOT decompose the named compose_yaml after scenario ends.  Useful for setting up environment and reviewing after scenario.
-#
 #  @chaincodeImagesUpToDate use this if all scenarios chaincode images are up to date, and do NOT require building.  BE SURE!!!
 
 #@chaincodeImagesUpToDate
-Feature: lanching 3 peers
-    As a HyperLedger developer
-    I want to be able to launch 3 peers
+Feature: Network of Peers
+    As a Fabric developer
+    I want to run a network of peers
 
 #    @wip
   Scenario: Peers list test, single peer issue #827
@@ -53,7 +51,7 @@ Feature: lanching 3 peers
       When I query chaincode "map" function name "get" on "vp0":
         | arg1|
         | key1 |
-      Then I should get a JSON response with "OK" = "value1"
+      Then I should get a JSON response with "result.message" = "value1"
 
       When I invoke chaincode "map" function name "put" on "vp0"
         | arg1 | arg2 |
@@ -67,7 +65,7 @@ Feature: lanching 3 peers
       When I query chaincode "map" function name "keys" on "vp0":
         ||
         ||
-      Then I should get a JSON response with "OK" = "["key1","key2"]"
+      Then I should get a JSON response with "result.message" = "["key1","key2"]"
 
       When I invoke chaincode "map" function name "remove" on "vp0"
         | arg1 | |
@@ -81,7 +79,7 @@ Feature: lanching 3 peers
       When I query chaincode "map" function name "keys" on "vp0":
         ||
         ||
-      Then I should get a JSON response with "OK" = "["key2"]"
+      Then I should get a JSON response with "result.message" = "["key2"]"
 
 # @doNotDecompose
   @wip
@@ -117,7 +115,7 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test1|
-      Then I should get a JSON response with "OK" = "{[string:"test1"  int32:10  int32:20 ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"test1"  int32:10  int32:20 ]}"
 
       When I invoke chaincode "table_test" function name "insertRowTableTwo" on "vp0"
         | arg1 | arg2 | arg3 | arg3 |
@@ -130,7 +128,7 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableTwo" on "vp0":
         | arg1 | arg2 | arg3 |
         | foo2 | 65   | bar8 |
-      Then I should get a JSON response with "OK" = "{[string:"foo2"  int32:34  int32:65  string:"bar8" ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"foo2"  int32:34  int32:65  string:"bar8" ]}"
 
       When I invoke chaincode "table_test" function name "replaceRowTableOne" on "vp0"
         | arg1 | arg2 | arg3 |
@@ -143,7 +141,7 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test1|
-      Then I should get a JSON response with "OK" = "{[string:"test1"  int32:30  int32:40 ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"test1"  int32:30  int32:40 ]}"
 
       When I invoke chaincode "table_test" function name "deleteRowTableOne" on "vp0"
         | arg1 |
@@ -156,12 +154,12 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test1|
-      Then I should get a JSON response with "OK" = "{[]}"
+      Then I should get a JSON response with "result.message" = "{[]}"
 
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test2|
-      Then I should get a JSON response with "OK" = "{[string:"test2"  int32:10  int32:20 ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"test2"  int32:10  int32:20 ]}"
 
       When I invoke chaincode "table_test" function name "insertRowTableOne" on "vp0"
         | arg1 | arg2 | arg3 |
@@ -190,17 +188,17 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test3|
-      Then I should get a JSON response with "OK" = "{[string:"test3"  int32:10  int32:20 ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"test3"  int32:10  int32:20 ]}"
 
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test4|
-      Then I should get a JSON response with "OK" = "{[string:"test4"  int32:10  int32:20 ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"test4"  int32:10  int32:20 ]}"
 
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test5|
-      Then I should get a JSON response with "OK" = "{[string:"test5"  int32:10  int32:20 ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"test5"  int32:10  int32:20 ]}"
 
       When I invoke chaincode "table_test" function name "insertRowTableTwo" on "vp0"
         | arg1 | arg2 | arg3 | arg3 |
@@ -237,17 +235,17 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowsTableTwo" on "vp0":
         | arg1 | arg2 |
         | foo2 | 65   |
-      Then I should get a JSON response with "OK" = "[{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":37}},{"Value":{"Int32":65}},{"Value":{"String_":"bar12"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":34}},{"Value":{"Int32":65}},{"Value":{"String_":"bar8"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":36}},{"Value":{"Int32":65}},{"Value":{"String_":"bar11"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":35}},{"Value":{"Int32":65}},{"Value":{"String_":"bar10"}}]}]"
+      Then I should get a JSON response with "result.message" = "[{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":37}},{"Value":{"Int32":65}},{"Value":{"String_":"bar12"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":34}},{"Value":{"Int32":65}},{"Value":{"String_":"bar8"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":36}},{"Value":{"Int32":65}},{"Value":{"String_":"bar11"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":35}},{"Value":{"Int32":65}},{"Value":{"String_":"bar10"}}]}]"
 
       When I query chaincode "table_test" function name "getRowsTableTwo" on "vp0":
         | arg1 | arg2 |
         | foo2 | 66   |
-      Then I should get a JSON response with "OK" = "[{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":38}},{"Value":{"Int32":66}},{"Value":{"String_":"bar10"}}]}]"
+      Then I should get a JSON response with "result.message" = "[{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":38}},{"Value":{"Int32":66}},{"Value":{"String_":"bar10"}}]}]"
 
       When I query chaincode "table_test" function name "getRowsTableTwo" on "vp0":
         | arg1 |
         | foo2 |
-      Then I should get a JSON response with "OK" = "[{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":37}},{"Value":{"Int32":65}},{"Value":{"String_":"bar12"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":34}},{"Value":{"Int32":65}},{"Value":{"String_":"bar8"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":36}},{"Value":{"Int32":65}},{"Value":{"String_":"bar11"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":38}},{"Value":{"Int32":66}},{"Value":{"String_":"bar10"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":35}},{"Value":{"Int32":65}},{"Value":{"String_":"bar10"}}]}]"
+      Then I should get a JSON response with "result.message" = "[{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":37}},{"Value":{"Int32":65}},{"Value":{"String_":"bar12"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":34}},{"Value":{"Int32":65}},{"Value":{"String_":"bar8"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":36}},{"Value":{"Int32":65}},{"Value":{"String_":"bar11"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":38}},{"Value":{"Int32":66}},{"Value":{"String_":"bar10"}}]},{"columns":[{"Value":{"String_":"foo2"}},{"Value":{"Int32":35}},{"Value":{"Int32":65}},{"Value":{"String_":"bar10"}}]}]"
 
       When I invoke chaincode "table_test" function name "deleteAndRecreateTableOne" on "vp0"
         ||
@@ -260,27 +258,27 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test3|
-      Then I should get a JSON response with "OK" = "{[]}"
+      Then I should get a JSON response with "result.message" = "{[]}"
 
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test4|
-      Then I should get a JSON response with "OK" = "{[]}"
+      Then I should get a JSON response with "result.message" = "{[]}"
 
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test5|
-      Then I should get a JSON response with "OK" = "{[]}"
+      Then I should get a JSON response with "result.message" = "{[]}"
 
       When I query chaincode "table_test" function name "getRowTableOne" on "vp0":
         | arg1 |
         | test2|
-      Then I should get a JSON response with "OK" = "{[]}"
+      Then I should get a JSON response with "result.message" = "{[]}"
 
       When I query chaincode "table_test" function name "getRowTableTwo" on "vp0":
         | arg1 | arg2 | arg3 |
         | foo2 | 65   | bar8 |
-      Then I should get a JSON response with "OK" = "{[string:"foo2"  int32:34  int32:65  string:"bar8" ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"foo2"  int32:34  int32:65  string:"bar8" ]}"
 
       When I invoke chaincode "table_test" function name "insertRowTableThree" on "vp0"
         | arg1 | arg2 | arg3 | arg4 | arg5 | arg6 | arg7 |
@@ -293,7 +291,7 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableThree" on "vp0":
         | arg1 |
         | foo2 |
-      Then I should get a JSON response with "OK" = "{[string:"foo2"  int32:-38  int64:-66  uint32:77  uint64:88  bytes:"hello"  bool:true ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"foo2"  int32:-38  int64:-66  uint32:77  uint64:88  bytes:"hello"  bool:true ]}"
 
       When I invoke chaincode "table_test" function name "insertRowTableFour" on "vp0"
         | arg1   |
@@ -306,12 +304,90 @@ Feature: lanching 3 peers
       When I query chaincode "table_test" function name "getRowTableFour" on "vp0":
         | arg1   |
         | foobar |
-      Then I should get a JSON response with "OK" = "{[string:"foobar" ]}"
+      Then I should get a JSON response with "result.message" = "{[string:"foobar" ]}"
 
       When I query chaincode "table_test" function name "getRowsTableFour" on "vp0":
         | arg1   |
         | foobar |
-      Then I should get a JSON response with "OK" = "[{"columns":[{"Value":{"String_":"foobar"}}]}]"
+      Then I should get a JSON response with "result.message" = "[{"columns":[{"Value":{"String_":"foobar"}}]}]"
+
+@doNotDecompose
+#    @wip
+	Scenario: chaincode example 01 single peer erroneous TX
+	    Given we compose "docker-compose-1.yml"
+	    When requesting "/chain" from "vp0"
+	    Then I should get a JSON response with "height" = "1"
+	    When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example01" with ctor "init" to "vp0"
+		     | arg1 |  arg2 | arg3 | arg4 |
+		     |  a   |  100  |  b   |  200 |
+	    Then I should have received a chaincode name
+	    Then I wait up to "60" seconds for transaction to be committed to all peers
+
+	    When requesting "/chain" from "vp0"
+	    Then I should get a JSON response with "height" = "2"
+
+        When I invoke chaincode "example1" function name "invoke" on "vp0"
+			|arg1|
+			| 1  |
+	    Then I should have received a transactionID
+	    Then I wait up to "25" seconds for transaction to be committed to all peers
+
+	    When requesting "/chain" from "vp0"
+	    Then I should get a JSON response with "height" = "3"
+	    When requesting "/chain/blocks/2" from "vp0"
+	    Then I should get a JSON response containing "transactions" attribute
+
+        When I invoke chaincode "example1" function name "invoke" on "vp0"
+			|arg1|
+			| a  |
+	    Then I should have received a transactionID
+	    Then I wait "10" seconds
+        When requesting "/chain" from "vp0"
+	    Then I should get a JSON response with "height" = "4"
+        When requesting "/chain/blocks/3" from "vp0"
+	    Then I should get a JSON response containing no "transactions" attribute
+
+#    @doNotDecompose
+#    @wip
+#    Arg[0] = a, base64 = 'YQ=='
+#    sha256 = 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb'
+	Scenario: chaincode map single peer content generated ID
+	    Given we compose "docker-compose-1.yml"
+	    When requesting "/chain" from "vp0"
+	    Then I should get a JSON response with "height" = "1"
+	    When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/map" with ctor "init" to "vp0"
+	      ||
+              ||
+	    Then I should have received a chaincode name
+	    Then I wait up to "60" seconds for transaction to be committed to all peers
+
+        When I invoke chaincode "map" function name "put" on "vp0" with "sha256base64"
+	    | arg1  |arg2|
+            | YQ==  | 10 |
+	    Then I should have received a transactionID
+	    Then I wait up to "25" seconds for transaction to be committed to all peers
+	    Then I check the transaction ID if it is "ca978112-ca1b-bdca-fac2-31b39a23dc4d"
+
+    Scenario: chaincode example 01 single peer rejection message
+	    Given we compose "docker-compose-1-exp.yml"
+	    Given I start a listener
+	    Then I wait "5" seconds
+
+	    When requesting "/chain" from "vp0"
+	    Then I should get a JSON response with "height" = "1"
+	    When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example01" with ctor "init" to "vp0"
+		     | arg1 |  arg2 | arg3 | arg4 |
+		     |  a   |  100  |  b   |  200 |
+	    Then I should have received a chaincode name
+	    Then I wait up to "60" seconds for transaction to be committed to all peers
+
+        When I invoke chaincode "example1" function name "invoke" on "vp0"
+			|arg1|
+			| a  |
+	    Then I should have received a transactionID
+	    Then I wait "10" seconds
+
+	Then I should get a rejection message in the listener after stopping it
 
 #    @doNotDecompose
 #    @wip
@@ -331,7 +407,7 @@ Feature: lanching 3 peers
         When I query chaincode "example2" function name "query" on "vp0":
             |arg1|
             |  a |
-	    Then I should get a JSON response with "OK" = "100"
+	    Then I should get a JSON response with "result.message" = "100"
 
 
         When I invoke chaincode "example2" function name "invoke" on "vp0"
@@ -346,12 +422,12 @@ Feature: lanching 3 peers
         When I query chaincode "example2" function name "query" on "vp0":
             |arg1|
             |  a |
-	    Then I should get a JSON response with "OK" = "90"
+	    Then I should get a JSON response with "result.message" = "90"
 
         When I query chaincode "example2" function name "query" on "vp0":
             |arg1|
             |  b |
-	    Then I should get a JSON response with "OK" = "210"
+	    Then I should get a JSON response with "result.message" = "210"
 
 #    @doNotDecompose
 #    @wip
@@ -369,7 +445,7 @@ Feature: lanching 3 peers
         When I query chaincode "example2" function name "query" on all peers:
             |arg1|
             |  a |
-	    Then I should get a JSON response from all peers with "OK" = "100"
+	    Then I should get a JSON response from all peers with "result.message" = "100"
 
         When I invoke chaincode "example2" function name "invoke" on "vp0"
 			|arg1|arg2|arg3|
@@ -380,7 +456,7 @@ Feature: lanching 3 peers
         When I query chaincode "example2" function name "query" on all peers:
             |arg1|
             |  a |
-	    Then I should get a JSON response from all peers with "OK" = "80"
+	    Then I should get a JSON response from all peers with "result.message" = "80"
 
 
 #    @doNotDecompose
@@ -410,7 +486,7 @@ Feature: lanching 3 peers
 
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp0  | vp1 | vp2 | vp3 |
-	    Then I should get a JSON response from peers with "OK" = "100"
+	    Then I should get a JSON response from peers with "result.message" = "100"
             | vp0  | vp1 | vp2 | vp3 |
 
         When I invoke chaincode "example2" function name "invoke" on "vp0"
@@ -422,15 +498,13 @@ Feature: lanching 3 peers
 
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp0  | vp1 | vp2 | vp3 |
-	    Then I should get a JSON response from peers with "OK" = "80"
+	    Then I should get a JSON response from peers with "result.message" = "80"
             | vp0  | vp1 | vp2 | vp3 |
 
     Examples: Consensus Options
         |          ComposeFile                     |   WaitTime   |
         |   docker-compose-4-consensus-noops.yml   |      60      |
-        |   docker-compose-4-consensus-classic.yml |      60      |
         |   docker-compose-4-consensus-batch.yml   |      60      |
-        |   docker-compose-4-consensus-sieve.yml   |      60      |
 
 
     #@doNotDecompose
@@ -470,7 +544,7 @@ Feature: lanching 3 peers
 
             When I query chaincode "example2" function name "query" with value "a" on peers:
                     | vp0  | vp1 | vp2 | vp3 |
-	        Then I should get a JSON response from peers with "OK" = "130"
+	        Then I should get a JSON response from peers with "result.message" = "130"
                     | vp0  | vp1 | vp2 | vp3 |
 
         # STOPPING vp3!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -487,7 +561,7 @@ Feature: lanching 3 peers
 
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp0  | vp1 | vp2 |
-	    Then I should get a JSON response from peers with "OK" = "120"
+	    Then I should get a JSON response from peers with "result.message" = "120"
             | vp0  | vp1 | vp2 |
 
         # Now start vp3 again
@@ -506,15 +580,13 @@ Feature: lanching 3 peers
        Then I wait "60" seconds
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp0  | vp1 | vp2 | vp3 |
-	    Then I should get a JSON response from peers with "OK" = "20"
+	    Then I should get a JSON response from peers with "result.message" = "20"
             | vp0  | vp1 | vp2 | vp3 |
 
 
     Examples: Consensus Options
         |          ComposeFile                       |   WaitTime   |
-        |   docker-compose-4-consensus-classic.yml   |      60      |
         |   docker-compose-4-consensus-batch.yml     |      60      |
-        |   docker-compose-4-consensus-sieve.yml     |      60      |
 
 
 #    @doNotDecompose
@@ -544,7 +616,7 @@ Feature: lanching 3 peers
 
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp0  | vp1 | vp2 | vp3 |
-	    Then I should get a JSON response from peers with "OK" = "100"
+	    Then I should get a JSON response from peers with "result.message" = "100"
             | vp0  | vp1 | vp2 | vp3 |
 
         Given I stop peers:
@@ -557,7 +629,7 @@ Feature: lanching 3 peers
 
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp3  |
-	    Then I should get a JSON response from peers with "OK" = "100"
+	    Then I should get a JSON response from peers with "result.message" = "100"
             | vp3  |
 
     Examples: Consensus Options
@@ -616,7 +688,7 @@ Feature: lanching 3 peers
 
       When I query chaincode "example2" function name "query" with value "a" on peers:
            | vp0  | vp1 | vp2 | vp3 |
-       Then I should get a JSON response from peers with "OK" = "95"
+       Then I should get a JSON response from peers with "result.message" = "95"
            | vp0  | vp1 | vp2 | vp3 |
 
       # STOP vp2
@@ -634,14 +706,12 @@ Feature: lanching 3 peers
 
       When I query chaincode "example2" function name "query" with value "a" on peers:
         | vp0  | vp1 | vp3 |
-       Then I should get a JSON response from peers with "OK" = "90"
+       Then I should get a JSON response from peers with "result.message" = "90"
         | vp0 | vp1 | vp3 |
 
    Examples: Consensus Options
        |          ComposeFile                       |   WaitTime   |
-       |   docker-compose-4-consensus-classic.yml   |      60      |
        |   docker-compose-4-consensus-batch.yml     |      60      |
-       |   docker-compose-4-consensus-sieve.yml     |      60      |
 
 #@doNotDecompose
 #@wip
@@ -679,7 +749,7 @@ Feature: lanching 3 peers
 
     When I query chaincode "example2" function name "query" with value "a" on peers:
          | vp0  | vp1 | vp2 | vp3 |
-     Then I should get a JSON response from peers with "OK" = "95"
+     Then I should get a JSON response from peers with "result.message" = "95"
          | vp0  | vp1 | vp2 | vp3 |
 
     # STOP vp2
@@ -695,14 +765,12 @@ Feature: lanching 3 peers
 
     When I query chaincode "example2" function name "query" with value "a" on peers:
       | vp0 | vp3 |
-     Then I should get a JSON response from peers with "OK" = "95"
+     Then I should get a JSON response from peers with "result.message" = "95"
       | vp0 | vp3 |
 
  Examples: Consensus Options
      |          ComposeFile                       |   WaitTime   |
-     |   docker-compose-4-consensus-classic.yml   |      60      |
      |   docker-compose-4-consensus-batch.yml     |      60      |
-     |   docker-compose-4-consensus-sieve.yml     |      60      |
 
      #@doNotDecompose
      #@wip
@@ -739,14 +807,12 @@ Feature: lanching 3 peers
 
          When I query chaincode "example2" function name "query" with value "a" on peers:
               | vp0  | vp1 | vp2 |
-          Then I should get a JSON response from peers with "OK" = "50"
+          Then I should get a JSON response from peers with "result.message" = "50"
               | vp0  | vp1 | vp2 |
 
       Examples: Consensus Options
-          |          ComposeFile                                   |   WaitTime   |
-          |   docker-compose-4-consensus-classic-1-byzantine.yml   |      60      |
-          |   docker-compose-4-consensus-batch-1-byzantine.yml     |      60      |
-          |   docker-compose-4-consensus-sieve-1-byzantine.yml     |      60      |
+          |                                  ComposeFile                                               |   WaitTime   |
+          |   docker-compose-4-consensus-batch.yml    docker-compose-4-consensus-vp3-byzantine.yml     |      60      |
 
 
   #@doNotDecompose
@@ -815,7 +881,7 @@ Feature: lanching 3 peers
 
             When I query chaincode "example2" function name "query" with value "a" on peers:
                     | vp0  | vp1 | vp2 | vp3 |
-	        Then I should get a JSON response from peers with "OK" = "130"
+	        Then I should get a JSON response from peers with "result.message" = "130"
                     | vp0  | vp1 | vp2 | vp3 |
 
         # Stop vp1, vp2, vp3
@@ -836,15 +902,13 @@ Feature: lanching 3 peers
             | vp0  | vp1 | vp2 |
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp0  | vp1 | vp2 |
-	    Then I should get a JSON response from peers with "OK" = "120"
+	    Then I should get a JSON response from peers with "result.message" = "120"
             | vp0  | vp1 | vp2 |
 
 
     Examples: Consensus Options
         |          ComposeFile                       |   WaitTime   |
-        |   docker-compose-4-consensus-classic.yml   |      60      |
         |   docker-compose-4-consensus-batch.yml     |      60      |
-        #|   docker-compose-4-consensus-sieve.yml     |      60      | // TODO, this is known to be broken, pending a fix
 
 
 
@@ -887,7 +951,7 @@ Feature: lanching 3 peers
 
             When I query chaincode "example2" function name "query" with value "a" on peers:
                     | vp0  | vp1 | vp2 |
-	        Then I should get a JSON response from peers with "OK" = "101"
+	        Then I should get a JSON response from peers with "result.message" = "101"
                     | vp0  | vp1 | vp2 |
 
         # Now start vp3 again
@@ -906,15 +970,447 @@ Feature: lanching 3 peers
        Then I wait "20" seconds
         When I query chaincode "example2" function name "query" with value "a" on peers:
             | vp0  | vp1 | vp2 |
-	    Then I should get a JSON response from peers with "OK" = "21"
-            | vp0  | vp1 | vp2 | 
+	    Then I should get a JSON response from peers with "result.message" = "21"
+            | vp0  | vp1 | vp2 |
         When I unconditionally query chaincode "example2" function name "query" with value "a" on peers:
             | vp3  |
-	    Then I should get a JSON response from peers with "Error" = "Error: state may be inconsistent, cannot query"
+	    Then I should get a JSON response from peers with "error.data" = "Error when querying chaincode: Error: state may be inconsistent, cannot query"
             | vp3  |
 
 
     Examples: Consensus Options
         |          ComposeFile                       |   WaitTime   |
-        |   docker-compose-4-consensus-classic.yml   |      60      |
         |   docker-compose-4-consensus-batch.yml     |      60      |
+
+#    @doNotDecompose
+#    @wip
+    Scenario: chaincode example02 with 4 peers, one paused, issue #1056
+        Given we compose "docker-compose-4-consensus-batch.yml"
+	    And I register with CA supplying username "binhn" and secret "7avZQLwcUe9q" on peers:
+                     | vp0  |
+            And I use the following credentials for querying peers:
+		     | peer |   username  |    secret    |
+		     | vp0  |  test_user0 | MS9qrN8hFjlE |
+		     | vp1  |  test_user1 | jGlNl6ImkuDo |
+		     | vp2  |  test_user2 | zMflqOKezFiA |
+		     | vp3  |  test_user3 | vWdLCE00vJy0 |
+
+        When requesting "/chain" from "vp0"
+	Then I should get a JSON response with "height" = "1"
+
+        Given I pause peers:
+              | vp3  |
+
+        When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example02" with ctor "init" to "vp0"
+	     | arg1 |  arg2 | arg3 | arg4 |
+	     |  a   |  100  |  b   |  200 |
+	     Then I should have received a chaincode name
+             Then I wait up to "60" seconds for transaction to be committed to peers:
+                  | vp0  | vp1 | vp2 |
+
+        When I query chaincode "example2" function name "query" with value "a" on peers:
+             | vp0  | vp1 | vp2 |
+             Then I should get a JSON response from peers with "result.message" = "100"
+             | vp0  | vp1 | vp2 |
+
+        When I invoke chaincode "example2" function name "invoke" on "vp0" "20" times
+	     |arg1|arg2|arg3|
+             | a  | b  |  1 |
+             Then I should have received a transactionID
+             Then I wait up to "20" seconds for transaction to be committed to peers:
+                  | vp0  | vp1 | vp2 |
+
+        When I query chaincode "example2" function name "query" with value "a" on peers:
+             | vp0  | vp1 | vp2 |
+             Then I should get a JSON response from peers with "result.message" = "80"
+             | vp0  | vp1 | vp2 |
+
+#@doNotDecompose
+#    @wip
+@issue_1873
+       Scenario Outline: 4 peers and 1 membersrvc, consensus works if vp0 is stopped TTT3
+            Given we compose "<ComposeFile>"
+            And I use the following credentials for querying peers:
+               | peer |   username  |    secret    |
+               | vp0  |  test_user0 | MS9qrN8hFjlE |
+               | vp1  |  test_user1 | jGlNl6ImkuDo |
+               | vp2  |  test_user2 | zMflqOKezFiA |
+               | vp3  |  test_user3 | vWdLCE00vJy0 |
+            And I register with CA supplying username "test_user0" and secret "MS9qrN8hFjlE" on peers:
+               | vp0 |
+
+            When requesting "/chain" from "vp0"
+            Then I should get a JSON response with "height" = "1"
+
+            # Deploy
+            When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example02" with ctor "init" to "vp0"
+               | arg1 |  arg2 | arg3 | arg4 |
+               |  a   |  100  |  b   |  200 |
+            Then I should have received a chaincode name
+            Then I wait up to "<WaitTime>" seconds for transaction to be committed to peers:
+               | vp0  | vp1 | vp2 | vp3 |
+
+            When requesting "/chain" from "vp0"
+            Then I should get a JSON response with "height" = "2"
+
+            # STOP vp0
+            Given I stop peers:
+               | vp0  |
+            And I wait "5" seconds
+
+            And I register with CA supplying username "test_user1" and secret "jGlNl6ImkuDo" on peers:
+               | vp1 |
+
+            When I invoke chaincode "example2" function name "invoke" on "vp1" "5" times
+               |arg1|arg2|arg3|
+               | a  | b  | 1 |
+            Then I should have received a transactionID
+            #Then I wait up to "120" seconds for transaction to be committed to peers:
+            #      | vp0  | vp1 | vp2 | vp3 |
+            And I wait "120" seconds
+            When I query chaincode "example2" function name "query" with value "a" on peers:
+               | vp1 | vp2 | vp3 |
+            Then I should get a JSON response from peers with "result.message" = "95"
+               | vp1 | vp2 | vp3 |
+            Examples: Consensus Options
+               |          ComposeFile                       |   WaitTime   |
+               |   docker-compose-4-consensus-batch.yml     |      60      |
+
+  #@doNotDecompose
+  #@wip
+  @issue_1851
+  Scenario Outline: verify reconnect of disconnected peer, issue #1851
+
+      Given we compose "<ComposeFile>"
+      And I wait "2" seconds
+
+      When requesting "/network/peers" from "vp0"
+      Then I should get a JSON response with array "peers" contains "2" elements
+
+      Given I stop peers:
+            | vp0  |
+
+      When requesting "/network/peers" from "vp1"
+      Then I should get a JSON response with array "peers" contains "1" elements
+
+      Given I start peers:
+            | vp0  |
+      And I wait "10" seconds
+
+      When requesting "/network/peers" from "vp1"
+      Then I should get a JSON response with array "peers" contains "2" elements
+
+    Examples: Composition options
+        |          ComposeFile     |
+        |   docker-compose-2.yml   |
+
+
+@issue_1942
+#@doNotDecompose
+Scenario: chaincode example02 with 4 peers, stop and start alternates, reverse
+    Given we compose "docker-compose-4-consensus-batch.yml"
+    And I register with CA supplying username "binhn" and secret "7avZQLwcUe9q" on peers:
+                                  | vp0  |
+    And I use the following credentials for querying peers:
+                            | peer |   username  |    secret    |
+                          | vp0  |  test_user0 | MS9qrN8hFjlE |
+                          | vp1  |  test_user1 | jGlNl6ImkuDo |
+                          | vp2  |  test_user2 | zMflqOKezFiA |
+                          | vp3  |  test_user3 | vWdLCE00vJy0 |
+
+    When requesting "/chain" from "vp0"
+    Then I should get a JSON response with "height" = "1"
+
+    When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example02" with ctor "init" to "vp0"
+                          | arg1 |  arg2 | arg3 | arg4 |
+                          |  a   |  1000 |  b   |   0  |
+    Then I should have received a chaincode name
+    Then I wait up to "60" seconds for transaction to be committed to peers:
+                          | vp0  | vp1 | vp2 | vp3 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+                          | vp0 | vp1  | vp2 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "1000"
+                          | vp0 |  vp1 | vp2 | vp3 |
+
+    Given I stop peers:
+                          | vp2 |
+    And I register with CA supplying username "test_user3" and secret "vWdLCE00vJy0" on peers:
+                          | vp3  |
+
+    When I invoke chaincode "example2" function name "invoke" on "vp3" "3" times
+                          |arg1|arg2|arg3|
+                          | a  | b  | 1  |
+    Then I should have received a transactionID
+    Then I wait up to "180" seconds for transaction to be committed to peers:
+                          | vp0 | vp1 | vp3 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+                          | vp0  | vp1 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "997"
+                          | vp0  | vp1 | vp3 |
+
+    Given I start peers:
+                          | vp2  |
+    And I wait "30" seconds
+
+    Given I stop peers:
+                          | vp1  |
+    When I invoke chaincode "example2" function name "invoke" on "vp3" "20" times
+                          |arg1|arg2|arg3|
+                          | a  | b  | 1  |
+    Then I should have received a transactionID
+    Then I wait up to "300" seconds for transaction to be committed to peers:
+                          | vp0  | vp2 | vp3 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+                          | vp0  | vp2 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "977"
+                          | vp0  | vp2 | vp3 |
+
+@issue_1874a
+#@doNotDecompose
+Scenario: chaincode example02 with 4 peers, two stopped
+    Given we compose "docker-compose-4-consensus-batch.yml"
+    And I register with CA supplying username "binhn" and secret "7avZQLwcUe9q" on peers:
+        | vp0  |
+    And I use the following credentials for querying peers:
+        | peer |   username  |    secret    |
+        | vp0  |  test_user0 | MS9qrN8hFjlE |
+        | vp1  |  test_user1 | jGlNl6ImkuDo |
+        | vp2  |  test_user2 | zMflqOKezFiA |
+        | vp3  |  test_user3 | vWdLCE00vJy0 |
+
+    When requesting "/chain" from "vp0"
+    Then I should get a JSON response with "height" = "1"
+
+    When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example02" with ctor "init" to "vp0"
+        | arg1 |  arg2 | arg3 | arg4 |
+        |  a   |  100  |  b   |  200 |
+    Then I should have received a chaincode name
+    Then I wait up to "60" seconds for transaction to be committed to peers:
+        | vp0  | vp1 | vp2 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+        | vp0  | vp1 | vp2 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "100"
+        | vp0  | vp1 | vp2 | vp3 |
+
+    Given I stop peers:
+        | vp2 | vp3  |
+
+    When I invoke chaincode "example2" function name "invoke" on "vp0"
+        |arg1|arg2|arg3|
+        | a  | b  | 10 |
+    Then I should have received a transactionID
+
+    Given I start peers:
+          | vp3  |
+    And I wait "15" seconds
+
+    When I invoke chaincode "example2" function name "invoke" on "vp0" "9" times
+        |arg1|arg2|arg3|
+        | a  | b  | 10 |
+    Then I should have received a transactionID
+    Then I wait up to "60" seconds for transaction to be committed to peers:
+        | vp0  | vp1 | vp3 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+        | vp0  | vp1 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "0"
+        | vp0  | vp1 | vp3 |
+
+@issue_1874b
+#@doNotDecompose
+Scenario: chaincode example02 with 4 peers, two stopped, bring back vp0
+    Given we compose "docker-compose-4-consensus-batch.yml"
+    And I register with CA supplying username "binhn" and secret "7avZQLwcUe9q" on peers:
+        | vp0  |
+    And I use the following credentials for querying peers:
+        | peer |   username  |    secret    |
+        | vp0  |  test_user0 | MS9qrN8hFjlE |
+        | vp1  |  test_user1 | jGlNl6ImkuDo |
+        | vp2  |  test_user2 | zMflqOKezFiA |
+        | vp3  |  test_user3 | vWdLCE00vJy0 |
+
+    When requesting "/chain" from "vp0"
+    Then I should get a JSON response with "height" = "1"
+
+    When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example02" with ctor "init" to "vp0"
+        | arg1 |  arg2 | arg3 | arg4 |
+        |  a   |  100  |  b   |  200 |
+    Then I should have received a chaincode name
+    Then I wait up to "60" seconds for transaction to be committed to peers:
+        | vp0  | vp1 | vp2 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+        | vp0  | vp1 | vp2 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "100"
+        | vp0  | vp1 | vp2 | vp3 |
+
+    Given I stop peers:
+        | vp0 |
+
+    And I register with CA supplying username "test_user1" and secret "jGlNl6ImkuDo" on peers:
+        | vp1  |
+
+    When I invoke chaincode "example2" function name "invoke" on "vp1"
+        |arg1|arg2|arg3|
+        | a  | b  | 10 |
+    Then I should have received a transactionID
+
+    Given I stop peers:
+        | vp3  |
+
+    When I invoke chaincode "example2" function name "invoke" on "vp1"
+        |arg1|arg2|arg3|
+        | a  | b  | 10 |
+    Then I should have received a transactionID
+
+    Given I start peers:
+        | vp0  |
+    And I wait "15" seconds
+
+    When I invoke chaincode "example2" function name "invoke" on "vp1" "8" times
+        |arg1|arg2|arg3|
+        | a  | b  | 10 |
+    Then I should have received a transactionID
+    Then I wait up to "60" seconds for transaction to be committed to peers:
+        | vp0  | vp1 | vp2 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+        | vp0  | vp1 | vp2 |
+    Then I should get a JSON response from peers with "result.message" = "0"
+        | vp0  | vp1 | vp2 |
+
+@issue_1874c
+#@doNotDecompose
+    Scenario: chaincode example02 with 4 peers, two stopped, bring back both
+    Given we compose "docker-compose-4-consensus-batch.yml"
+    And I register with CA supplying username "binhn" and secret "7avZQLwcUe9q" on peers:
+            | vp0  |
+    And I use the following credentials for querying peers:
+            | peer |   username  |    secret    |
+            | vp0  |  test_user0 | MS9qrN8hFjlE |
+            | vp1  |  test_user1 | jGlNl6ImkuDo |
+            | vp2  |  test_user2 | zMflqOKezFiA |
+            | vp3  |  test_user3 | vWdLCE00vJy0 |
+
+    When requesting "/chain" from "vp0"
+    Then I should get a JSON response with "height" = "1"
+
+    When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example02" with ctor "init" to "vp0"
+            | arg1 |  arg2 | arg3 | arg4 |
+            |  a   |  100  |  b   |  200 |
+    Then I should have received a chaincode name
+    Then I wait up to "60" seconds for transaction to be committed to peers:
+            | vp0  | vp1 | vp2 |
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+            | vp0  | vp1 | vp2 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "100"
+            | vp0  | vp1 | vp2 | vp3 |
+
+    Given I stop peers:
+            | vp1 | vp2 |
+
+    When I invoke chaincode "example2" function name "invoke" on "vp0" "1" times
+            |arg1|arg2|arg3|
+            | a  | b  | 10 |
+    Then I should have received a transactionID
+
+    Given I start peers:
+            | vp1 | vp2 |
+    And I wait "15" seconds
+
+    When I invoke chaincode "example2" function name "invoke" on "vp0" "8" times
+            |arg1|arg2|arg3|
+            | a  | b  | 10 |
+    Then I should have received a transactionID
+    Then I wait up to "60" seconds for transaction to be committed to peers:
+            | vp0  | vp1 | vp2 | vp3 |
+
+    Then I wait "30" seconds
+    # For the view to change to "vp3" or "vp1"
+
+    When I query chaincode "example2" function name "query" with value "a" on peers:
+            | vp0  | vp1 | vp2 | vp3 |
+    Then I should get a JSON response from peers with "result.message" = "10"
+            | vp0  | vp1 | vp2 | vp3 |
+
+    @issue_2116
+    #@doNotDecompose
+    Scenario Outline: chaincode authorizable_counter with 4 peers, two stopped, bring back both
+        Given we compose "<ComposeFile>"
+        And I register with CA supplying username "diego" and secret "DRJ23pEQl16a" on peers:
+                | vp0  |
+        And I use the following credentials for querying peers:
+                | peer |   username  |    secret    |
+                | vp0  |  test_user0 | MS9qrN8hFjlE |
+                | vp1  |  test_user1 | jGlNl6ImkuDo |
+                | vp2  |  test_user2 | zMflqOKezFiA |
+                | vp3  |  test_user3 | vWdLCE00vJy0 |
+
+        When requesting "/chain" from "vp0"
+        Then I should get a JSON response with "height" = "1"
+
+        When I deploy chaincode "github.com/hyperledger/fabric/examples/chaincode/go/authorizable_counter" with ctor "init" to "vp0"
+                | arg1 |
+                | 0    |
+        Then I should have received a chaincode name
+        Then I wait up to "60" seconds for transaction to be committed to peers:
+                | vp0  | vp1 | vp2 |
+
+        When I query chaincode "authorizable_counter" function name "read" on "vp0":
+                |arg1|
+                | a  |
+        Then I should get a JSON response with "result.message" = "0"
+
+        When I invoke chaincode "authorizable_counter" function name "increment" with attributes "position" on "vp0"
+                |arg1|
+                | a  |
+        Then I should have received a transactionID
+
+        When I invoke chaincode "authorizable_counter" function name "increment" on "vp0" "8" times
+                |arg1|arg2|arg3|
+                | a  | b  | 10 |
+        Then I should have received a transactionID
+        Then I wait up to "30" seconds for transaction to be committed to peers:
+                | vp0  | vp1 | vp2 | vp3 |
+
+        When I query chaincode "authorizable_counter" function name "read" with value "a" on peers:
+                | vp0  | vp1 | vp2 | vp3 |
+
+        Then I should get a JSON response from peers with "result.message" = "1"
+                | vp0  | vp1 | vp2 | vp3 |
+
+        When I invoke chaincode "authorizable_counter" function name "increment" with attributes "company" on "vp0"
+                |arg1|
+                | a  |
+
+        When I invoke chaincode "authorizable_counter" function name "increment" with attributes "company, position, age" on "vp0"
+                |arg1|
+                | a  |
+
+        Then I wait up to "15" seconds for transaction to be committed to peers:
+                | vp0  | vp1 | vp2 | vp3 |
+
+        When I query chaincode "authorizable_counter" function name "read" with value "a" on peers:
+                | vp0  | vp1 | vp2 | vp3 |
+
+        Then I should get a JSON response from peers with "result.message" = "2"
+                | vp0  | vp1 | vp2 | vp3 |
+
+        Examples: Consensus Options
+        |          ComposeFile                   |   WaitTime    |
+        |   docker-compose-4-consensus-batch.yml docker-membersrvc-attributes-enabled.yml |      120      |
+        |   docker-compose-4-consensus-batch.yml docker-membersrvc-attributes-enabled.yml docker-membersrvc-attributes-encryption-enabled.yml |      120      |
+
+#    noop
+#    @doNotDecompose
+  Scenario: noop chaincode test
+    Given we compose "docker-compose-1.yml"
+      When I invoke master chaincode "noop" function name "execute" on "vp0"
+        |arg1|
+        | aa |
+      Then I should have received a transactionID

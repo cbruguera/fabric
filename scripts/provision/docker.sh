@@ -97,8 +97,23 @@ do
 done`
 COPY scripts $REMOTESCRIPTS
 RUN $REMOTESCRIPTS/common.sh
+RUN chmod a+rw -R /opt/gopath
+RUN add-apt-repository ppa:openjdk-r/ppa -y
+RUN apt-get update && apt-get install openjdk-8-jdk -y
+RUN wget https://services.gradle.org/distributions/gradle-2.12-bin.zip -P /tmp --quiet
+RUN unzip -q /tmp/gradle-2.12-bin.zip -d /opt && rm /tmp/gradle-2.12-bin.zip
+RUN ln -s /opt/gradle-2.12/bin/gradle /usr/bin
+# TODO JAVA_HOME set here, consider using update-java-alternatives
+ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-amd64
+
 EOF
 
-docker build -t $NAME:latest $TMP
+[ ! -z "$http_proxy" ] && DOCKER_ARGS_PROXY="$DOCKER_ARGS_PROXY --build-arg http_proxy=$http_proxy"
+[ ! -z "$https_proxy" ] && DOCKER_ARGS_PROXY="$DOCKER_ARGS_PROXY --build-arg https_proxy=$https_proxy"
+[ ! -z "$HTTP_PROXY" ] && DOCKER_ARGS_PROXY="$DOCKER_ARGS_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY"
+[ ! -z "$HTTPS_PROXY" ] && DOCKER_ARGS_PROXY="$DOCKER_ARGS_PROXY --build-arg HTTPS_PROXY=$HTTPS_PROXY"
+[ ! -z "$no_proxy" ] && DOCKER_ARGS_PROXY="$DOCKER_ARGS_PROXY --build-arg no_proxy=$no_proxy"
+[ ! -z "$NO_PROXY" ] && DOCKER_ARGS_PROXY="$DOCKER_ARGS_PROXY --build-arg NO_PROXY=$NO_PROXY"
+docker build $DOCKER_ARGS_PROXY -t $NAME:latest $TMP
 
 rm -rf $TMP

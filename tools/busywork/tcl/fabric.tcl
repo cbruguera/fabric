@@ -1,13 +1,13 @@
 # fabric.tcl - A Tcl support package for Hyperledger fabric scripts
 
 # Copyright IBM Corp. 2016. All Rights Reserved.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # 		 http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,21 +33,31 @@ namespace eval ::fabric {}
 # If 'i_retry' is greater than 0, then HTTP failures are logged but retried up
 # to that many times. Incorrectly formatted data returned from a valid query
 # is never retried. We currently do not implememnt retry backoffs - it's
-# pedal-to-the-metal. 
+# pedal-to-the-metal.
+
+# If i_retry is less than 0 on entry, then this is a special flag that the
+# caller is expecting HTTP failures, and does not want diagnostics or error
+# exits. If the HTTP access fails then the call will exit with Tcl error{} and
+# the caller will presumably catch{} the error and do whatever is appropriate.
 
 proc ::fabric::devops {i_peer i_method i_query {i_retry 0}} {
 
-    for {set retry $i_retry} {$retry >= 0} {incr retry -1} {
-        
+    for {set retry [math:::max $i_retry 0]} {$retry >= 0} {incr retry -1} {
+
         if {[catch {
             ::http::geturl http://$i_peer/devops/$i_method -query $i_query
         } token]} {
+            if {$i_retry < 0} {
+                http::cleanup $token
+                error "http::geturl failed"
+            }
             if {$retry > 0} {
                 if {$retry == $i_retry} {
                     warn fabric \
                         "fabric::devops/$i_method $i_peer : " \
                         "Retrying after catastrophic HTTP error"
                 }
+                http::cleanup $token
                 continue
             }
             if {($retry == 0) && ($i_retry != 0)} {
@@ -56,12 +66,17 @@ proc ::fabric::devops {i_peer i_method i_query {i_retry 0}} {
                     "Retry limit ($i_retry) hit after " \
                     "catastrophic HTTP error : Aborting"
             }
+            http::cleanup $token
             errorExit \
                 "fabric::devops/$i_method $i_peer : ::http::geturl failed\n" \
                 $::errorInfo
         }
-        
+
         if {[http::ncode $token] != 200} {
+            if {$i_retry < 0} {
+                http::cleanup $token
+                error "http::ncode != 200"
+            }
             if {$retry > 0} {
                 if {$retry == $i_retry} {
                     warn fabric \
@@ -74,18 +89,17 @@ proc ::fabric::devops {i_peer i_method i_query {i_retry 0}} {
                         "Retry limit ($i_retry) hit after " \
                         "HTTP error return : Aborting"
                 }
+                http::cleanup $token
                 continue
             }
-            err err \
+            err fabric \
                 "FABRIC '$i_method' transaction to $i_peer failed " \
                 "with ncode = '[http::ncode $token]'; Aborting\n"
-            err err "Full dump of HTTP response below:"
-            foreach {k v} [array get $token] {err err "    $k $v"}
-            exit 1
+            httpErrorExit $token
         }
 
         set response [http::data $token]
-    
+
         set err [catch {
             set parse [json::json2dict $response]
             set ok [dict get $parse OK]
@@ -102,18 +116,17 @@ proc ::fabric::devops {i_peer i_method i_query {i_retry 0}} {
             }
         }
         }]
-        http::cleanup $token
-    
+
         if {$err} {
-            err err \
+            err fabric \
                 "FABRIC '$i_method' response from $i_peer " \
                 "is malformed/unexpected"
-            err err "Chaincode : $i_chaincode"
-            err err "Full response below:"
-            err err $response
-            exit 1
+            httpErrorExit $token
         }
-        if {$retry != $i_retry} {
+
+        http::cleanup $token
+
+        if {($i_retry >= 0) && ($retry != $i_retry)} {
             note fabric \
                 "fabric::devops/$i_method $i_peer : " \
                 "Success after [expr {$i_retry - $retry}] HTTP retries"
@@ -123,7 +136,7 @@ proc ::fabric::devops {i_peer i_method i_query {i_retry 0}} {
 
     return $result
 }
-    
+
 
 ############################################################################
 # deploy i_peer i_user i_chaincode i_fn i_args {i_retry 0}
@@ -166,6 +179,8 @@ proc ::fabric::deploy {i_peer i_user i_chaincode i_fn i_args {i_retry 0}} {
 # Issue a "deploy" transaction for a pre-started chaincode in development
 # mode. Here, the i_chaincode is a user-specified name. All of the other
 # arguments are otherwise the same as for deploy{}.
+
+# See ::fabric::devops{} for a discussion of the 'i_retry' parameter.
 
 proc ::fabric::devModeDeploy {i_peer i_user i_chaincode i_fn i_args {i_retry 0}} {
 
@@ -266,6 +281,64 @@ proc ::fabric::query {i_peer i_user i_chaincodeName i_fn i_args {i_retry 0}} {
 
 
 ############################################################################
+# height i_peer {i_retry 0}
+
+# Call the REST /chain API, returning the block height
+
+proc ::fabric::height {i_peer {i_retry 0}} {
+
+    for {set retry $i_retry} {$retry >= 0} {incr retry -1} {
+
+        if {[catch {http::geturl http://$i_peer/chain} token]} {
+            if {$retry > 0} {
+                if {$retry == $i_retry} {
+                    warn fabric \
+                        "$i_peer /chain: Retrying after catastrophic HTTP error"
+                }
+                http::cleanup $token
+                continue
+            }
+            errorExit \
+                "$i_peer /chain: ::http::geturl failed " \
+                "with $i_retry retries : $token"
+        }
+    
+        if {[http::ncode $token] != 200} {
+            
+            # Failure
+            
+            if {$retry > 0} {
+                if {$retry == $i_retry} {
+                    warn fabric \
+                        "$i_peer /chain: Retrying after HTTP error return"
+                }
+                http::cleanup $token
+                continue
+            }
+            
+            err fabric \
+                "$i_peer /chain; REST API call failed with $i_retry retries"
+            httpErrorExit $token
+        }
+        
+        if {[catch {json::json2dict [http::data $token]} parse]} {
+            err fabric "$i_peer /chain: JSON response does not parse: $parse"
+            httpErrorExit $token
+        }
+
+        if {[catch {dict get $parse height} height]} {
+            err fabric \
+                "$i_peer /chain: HTTP response does not contain a height: " \
+                $height
+            httpErrorExit $token
+        }
+
+        return $height
+    }
+}
+
+
+############################################################################
 # checkForLocalDockerChaincodes i_nPeers i_chaincodeNames
 
 # Given a system with i_nPeers peers, e.g., a Docker compose setup, return 1 if
@@ -288,33 +361,33 @@ proc ::fabric::checkForLocalDockerChaincodes {i_nPeers i_chaincodeNames} {
 # dockerLocalPeerIPs
 
 # Return a list of docker container IDs for all running containers based on
-# the 'hyperledger-peer' image.
+# the 'hyperledger/fabric-peer' image.
 
 proc ::fabric::dockerLocalPeerContainers {} {
 
     # This does not seem to work; membersrvc may (appear to?) be built from
-    # the hyperledger-peer image.
-    #return [exec docker ps -q -f status=running -f ancestor=hyperledger-peer]
-    
+    # the hyperledger/fabric-peer image.
+    #return [exec docker ps -q -f status=running -f ancestor=hyperledger/fabric-peer]
+
     return [exec docker ps --format="{{.Image}}\ {{.ID}}" | \
-                grep ^hyperledger-peer | cut -f 2 -d " " ]
+                grep ^hyperledger/fabric-peer | cut -f 2 -d " " ]
 }
 
 
 # Return a list of IP addresses of running containers based on the
-# 'hyperledger-peer' image. The IP addresses are returned in sorted order.
+# 'hyperledger/fabric-peer' image. The IP addresses are returned in sorted order.
 
 proc ::fabric::dockerLocalPeerIPs {} {
 
     return [lsort \
-                [mapeach container [dockerLocalPeerContainers] { 
+                [mapeach container [dockerLocalPeerContainers] {
                     exec docker inspect \
                         --format {{{.NetworkSettings.IPAddress}}} $container
                 }]]
 }
 
 # Return a list of pairs of {<name> <IP>} for running containers based on the
-# 'hyperledger-peer' image. The pairs are returned sorted on the container
+# 'hyperledger/fabric-peer' image. The pairs are returned sorted on the container
 # name.
 
 proc ::fabric::dockerLocalPeerNamesAndIPs {} {
@@ -357,7 +430,7 @@ proc ::fabric::caLogin {i_peer i_user i_secret} {
     http::cleanup $token
 }
 
-    
+
 ############################################################################
 # argify i_args
 

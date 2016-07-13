@@ -21,12 +21,13 @@ import (
 	"github.com/hyperledger/fabric/core/peer"
 
 	"fmt"
+	"sync"
+
 	"github.com/hyperledger/fabric/consensus/controller"
 	"github.com/hyperledger/fabric/consensus/util"
 	"github.com/hyperledger/fabric/core/chaincode"
 	pb "github.com/hyperledger/fabric/protos"
 	"golang.org/x/net/context"
-	"sync"
 )
 
 // EngineImpl implements a struct to hold consensus.Consenter, PeerEndpoint and MessageFan
@@ -55,7 +56,9 @@ func (eng *EngineImpl) ProcessTransactionMsg(msg *pb.Message, tx *pb.Transaction
 		// The secHelper is set during creat ChaincodeSupport, so we don't need this step
 		// cxt := context.WithValue(context.Background(), "security", secHelper)
 		cxt := context.Background()
-		result, err := chaincode.Execute(cxt, chaincode.GetChain(chaincode.DefaultChain), tx)
+		//query will ignore events as these are not stored on ledger (and query can report
+		//"event" data synchronously anyway)
+		result, _, err := chaincode.Execute(cxt, chaincode.GetChain(chaincode.DefaultChain), tx)
 		if err != nil {
 			response = &pb.Response{Status: pb.Response_FAILURE,
 				Msg: []byte(fmt.Sprintf("Error:%s", err))}
